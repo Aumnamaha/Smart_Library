@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Library Management</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <button class="theme-toggle" id="themeToggle" title="Toggle Dark/Light Mode">🌙</button>
+    
+    <!-- Hero Landing Section -->
+    <section class="hero-section">
+        <div class="glow-orb orb-1"></div>
+        <div class="glow-orb orb-2"></div>
+        
+        <div class="hero-container">
+            <div class="hero-content">
+                <div class="pill-badge">System v2.0</div>
+                <h1 class="hero-title">Smart Library <span class="highlight">Management</span></h1>
+                <p class="hero-subtitle">Experience a next-generation platform to smoothly manage book inventory, automated check-outs, and role-based user management—all in a premium interface.</p>
+                <button class="hero-btn" onclick="document.getElementById('dashboard').scrollIntoView({behavior: 'smooth'})">Go to Dashboard &darr;</button>
+            </div>
+            <div class="hero-graphics">
+                <div class="floating-card glass-panel">
+                    <div class="card-header">Top Trending</div>
+                    <h2>The Modern Web</h2>
+                    <p class="author">A. Developer</p>
+                    <span class="badge">12/15 Copies Available</span>
+                </div>
+                <div class="floating-card glass-panel card-offset">
+                    <div class="card-header">Recently Issued</div>
+                    <h2>Advanced Python</h2>
+                    <p class="author">Due in 14 days</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Application UI -->
+    <div class="dashboard-wrapper" id="dashboard">
+        <div class="glass-container dashboard-main">
+            <header>
+                <h2>Dashboard Area</h2>
+                <nav class="pill-nav">
+                    <button onclick="showSection('booksSection')" class="nav-btn active" id="nav-booksSection">Book Inventory</button>
+                    <button onclick="showSection('usersSection')" class="nav-btn" id="nav-usersSection">Members</button>
+                    <button onclick="showSection('transactionsSection')" class="nav-btn" id="nav-transactionsSection">Transactions</button>
+                </nav>
+            </header>
+
+            <main>
+                <!-- Books Section -->
+                <section id="booksSection" class="active-section split-section fade-in">
+                    <div class="section-header">
+                        <h2>Books Directory</h2>
+                        <button class="primary-btn" onclick="openModal('bookModal')">+ Add Book</button>
+                    </div>
+                    <div class="table-container">
+                        <table id="booksTable">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Title</th>
+                                    <th>Author</th>
+                                    <th>Copies (Avail / Total)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Built dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Users Section -->
+                <section id="usersSection" class="split-section fade-in" style="display: none;">
+                    <div class="section-header">
+                        <h2>Member Records</h2>
+                        <button class="primary-btn" onclick="openModal('userModal')">+ Add User</button>
+                    </div>
+                    <div class="table-container">
+                        <table id="usersTable">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Username</th>
+                                    <th>Role Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Built dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Transactions Section -->
+                <section id="transactionsSection" class="split-section fade-in" style="display: none;">
+                    <div class="section-header">
+                        <h2>Library Workflows</h2>
+                        <button class="primary-btn" onclick="openModal('transactionModal')">+ Issue Book</button>
+                    </div>
+                    <div class="table-container">
+                        <table id="transactionsTable">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>User ID</th>
+                                    <th>Book ID</th>
+                                    <th>Dates</th>
+                                    <th>Return Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Built dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <!-- Data Modals (Glassmorphism) -->
+    <div id="bookModal" class="modal">
+        <div class="modal-content glass-panel bounce-in">
+            <span class="close" onclick="closeModal('bookModal')">&times;</span>
+            <div class="modal-header">
+                <h2>Add Book</h2>
+            </div>
+            <form id="bookForm" onsubmit="addBook(event)">
+                <div class="input-wrapper">
+                    <input type="text" id="bookTitle" required placeholder=" " />
+                    <label>Book Title</label>
+                </div>
+                <div class="input-wrapper">
+                    <input type="text" id="bookAuthor" required placeholder=" " />
+                    <label>Author Name</label>
+                </div>
+                <div class="input-wrapper">
+                    <input type="text" id="bookIsbn" required placeholder=" " />
+                    <label>ISBN Number</label>
+                </div>
+                <div class="input-wrapper">
+                    <input type="number" id="bookCopies" min="1" required placeholder=" " />
+                    <label>Total Inventory Copies</label>
+                </div>
+                <button type="submit" class="primary-btn submit-full">Confirm Addition</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="userModal" class="modal">
+        <div class="modal-content glass-panel bounce-in">
+            <span class="close" onclick="closeModal('userModal')">&times;</span>
+            <div class="modal-header">
+                <h2>Register Member</h2>
+            </div>
+            <form id="userForm" onsubmit="addUser(event)">
+                <div class="input-wrapper">
+                    <input type="text" id="userName" required placeholder=" " />
+                    <label>Username</label>
+                </div>
+                <div class="input-wrapper">
+                    <input type="password" id="userPass" required placeholder=" " />
+                    <label>Account Password</label>
+                </div>
+                <div class="checkbox-wrapper">
+                    <input type="checkbox" id="userAdmin" />
+                    <label for="userAdmin">Grant Admin Privileges?</label>
+                </div>
+                <button type="submit" class="primary-btn submit-full">Create User</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="transactionModal" class="modal">
+        <div class="modal-content glass-panel bounce-in">
+            <span class="close" onclick="closeModal('transactionModal')">&times;</span>
+            <div class="modal-header">
+                <h2>Issue Book</h2>
+            </div>
+            <form id="transactionForm" onsubmit="issueBook(event)">
+                <div class="input-wrapper">
+                    <input type="number" id="transUserId" required placeholder=" " />
+                    <label>Member ID</label>
+                </div>
+                <div class="input-wrapper">
+                    <input type="number" id="transBookId" required placeholder=" " />
+                    <label>Book ID</label>
+                </div>
+                <button type="submit" class="primary-btn submit-full">Issue Immediately</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
