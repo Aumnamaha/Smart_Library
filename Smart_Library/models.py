@@ -19,17 +19,17 @@ class Book(Base):
     author = Column(String, index=True)
     isbn = Column(String, unique=True, index=True)
     total_copies = Column(Integer, default=1)
-    available_copies = Column(Integer, default=1)
+    available_copies = Column(Integer, default=1, index=True)
 
     transactions = relationship("Transaction", back_populates="book")
 
 class Transaction(Base):
     __tablename__ = "transactions"
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"))
-    book_id = Column(Integer, ForeignKey("books.id"))
-    issue_date = Column(Date, default=datetime.datetime.utcnow)
-    return_date = Column(Date, nullable=True)
+    user_id = Column(Integer, ForeignKey("users.id"), index=True)
+    book_id = Column(Integer, ForeignKey("books.id"), index=True)
+    issue_date = Column(Date, default=datetime.datetime.utcnow, index=True)
+    return_date = Column(Date, nullable=True, index=True)
 
     user = relationship("User", back_populates="transactions")
     book = relationship("Book", back_populates="transactions")
