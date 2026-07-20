@@ -1,6 +1,6 @@
 """
-Smart Library Application - Main Entry Point
-============================================
+Smart Library Application - Main Entry Point with Multilingual Support
+=======================================================================
 
 Waterfall Model Implementation Summary:
 - Phase 1 (Requirements): COMPLETED ✅
@@ -9,6 +9,8 @@ Waterfall Model Implementation Summary:
 - Phase 4 (Testing): PENDING ⏳
 - Phase 5 (Deployment): PENDING ⏳
 - Phase 6 (Maintenance): PLANNED ⏳
+
+Multilingual Support: English, Hindi, Telugu, Tamil, Bengali, Marathi, Kannada, Gujarati
 
 Usage:
     python -m src.main              # Run application directly
@@ -22,6 +24,7 @@ import os
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from voice.recorder import VoiceRecorder, WhisperSTTEngine
+from voice.language_manager import LanguageManager
 from models.model_runner import SpeechToTextRunner, NLUModelRunner
 from search.unified_search import UnifiedSearchEngine
 from pdf_compiler.compiler import PDFCompiler

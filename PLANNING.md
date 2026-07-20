@@ -1,12 +1,14 @@
-# Smart Library - Waterfall Model Implementation Plan
+# Smart Library - Agile Sprint Planning Document
 
 ## Overview
 
-This document outlines the complete **Waterfall Model** development approach for the Smart Library application. Each phase must be completed and signed off before moving to the next phase.
+This project uses a **Hybrid Waterfall-Agile approach**:
+- **Waterfall** for high-level phases (Requirements, Design, Testing) with clear milestones
+- **Agile sprints** within phases for iterative development and regular check-ins
 
 ---
 
-# PHASE 1: REQUIREMENTS ANALYSIS
+# PHASE 1: REQUIREMENTS ANALYSIS - COMPLETE ✅
 
 ## Phase Description
 Gather all stakeholder requirements, define system boundaries, and create detailed specifications before any design work begins.

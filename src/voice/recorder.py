@@ -1,11 +1,12 @@
 """
-Voice Recording Module
-======================
+Voice Recording Module with Multilingual Support
+=================================================
 
 Handles microphone input, audio recording, and playback for the Smart Library app.
+Supports multiple languages: English, Hindi, Telugu, Tamil, Bengali, Marathi, Kannada, Gujarati.
 
 Waterfall Model Phase: Implementation (Week 1-2)
-Status: Placeholder implementation
+Status: Placeholder implementation with multilingual foundation
 """
 
 import os
@@ -24,6 +25,7 @@ class VoiceRecorder:
         - Save recordings locally for privacy
         - Play back recordings before submission
         - Generate waveform data
+        - Multilingual language selection support
     """
 
     def __init__(self, output_dir: str = "./data/audio/recordings"):
@@ -119,44 +121,63 @@ class WhisperSTTEngine:
     Speech-to-Text engine using Whisper model for transcription.
 
     This module will integrate with a local Whisper model instance
-    to transcribe recorded audio to text.
+    to transcribe recorded audio to text. Supports multilingual input.
+
+    Supported Languages: English, Hindi (हिन्दी), Telugu (తెలుగు),
+                         Tamil (தமிழ்), Bengali (বাংলা), Marathi (मराठी),
+                         Kannada (ಕನ್ನಡ), Gujarati (ગુજરાતી)
     """
 
-    def __init__(self, model_path: Optional[str] = None):
+    def __init__(self, model_path: Optional[str] = None, language_manager=None):
         """
         Initialize STT engine.
 
         Args:
             model_path: Path to downloaded Whisper model
+            language_manager: LanguageManager instance for multilingual support
         """
         self.model_path = model_path or "./data/models/whisper/tiny.en.pt"
+        self.language_manager = language_manager
+        self.multilingual_model_loaded = False
 
-    def transcribe(self, audio_path: str) -> str:
+    def transcribe(self, audio_path: str, force_language: Optional[str] = None) -> str:
         """
         Transcribe audio file to text.
 
         Args:
             audio_path: Path to WAV file to transcribe
+            force_language: Override language for transcription (optional)
 
         Returns:
             Transcribed text string
         """
+        # Determine language for transcription
+        if self.language_manager:
+            lang_code = force_language or self.language_manager.get_current_language()
+        else:
+            lang_code = "en"  # Default to English if no language manager
+
+        print(f"[STT Engine] Transcribing with language: {lang_code}")
+
         # In production:
-        # from transformers import AutoProcessor, AutoModelForCausalLM
-        # processor = AutoProcessor.from_pretrained(...)
-        # model = AutoModelForCausalLM.from_pretrained(...)
+        # from transformers import AutoProcessor, AutoModelForSpeechSeq2Seq
+        # model = AutoModelForSpeechSeq2Seq.from_pretrained("openai/whisper-large-v3-turbo")
+        # processor = AutoProcessor.from_pretrained("openai/whisper-large-v3-turbo")
+
+        # For multilingual mode, use whisper-large-v3-turbo which supports 99 languages
 
         # Placeholder implementation
         print(f"[STT Engine] Loading Whisper model from: {self.model_path}")
 
-        # Simulate transcription with placeholder
+        # Simulate transcription with placeholder (including Hindi example)
         sample_queries = [
             "I want to read Wings of Fire by apj kalam",
             "Find me The Alchemist by Paulo Coelho",
-            "Show me Harry Potter and the Sorcerer's Stone"
+            "Show me Harry Potter and the Sorcerer's Stone",
+            "मुझे विंग्स ऑफ़ फायर नाम की किताब पढ़नी है"  # Hindi example
         ]
 
-        return f"[PLACEHOLDER: Audio transcribed from {audio_path}]"
+        return f"[PLACEHOLDER: Audio transcribed from {audio_path} (Language: {lang_code})]"
 
 
 if __name__ == "__main__":

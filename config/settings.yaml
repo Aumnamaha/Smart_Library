@@ -3,7 +3,32 @@
 
 system:
   name: "Smart Library"
-  version: "0.1.0"
+  version: "0.2.0"
+
+# Multilingual Support Configuration
+language:
+  # Default language (shown first in language selection)
+  default: "en"
+
+  # Supported languages with codes for Whisper model
+  supported_languages:
+    - code: "en"      # English
+    - code: "hi"      # Hindi
+    - code: "te"      # Telugu
+    - code: "ta"      # Tamil
+    - code: "bn"      # Bengali
+    - code: "mr"      # Marathi
+    - code: "kn"      # Kannada
+    - code: "gu"      # Gujarati
+
+  # Model to use for multilingual transcription
+  stt_model: "whisper-large-v3-turbo"  # Multilingual-capable Whisper model
+
+# Language Selection UI Settings
+language_ui:
+  show_selector_at_start: true     # Show language picker on first launch
+  allow_change_in_settings: true    # Allow changing in settings tab
+  display_language_name: true       # Show full language names (e.g., "Hindi")
 
 models:
   # Speech-to-Text Model Configuration
