@@ -2,9 +2,31 @@
 
 ## Current Status
 
-**Version:** v0.2.0  
+**Version:** v0.2.1  
 **Current Phase:** PHASE 1 (Requirements) → PHASE 2 (Design) Transition  
 **Approach:** Hybrid Waterfall-Agile  
+
+---
+
+## 🎉 MAJOR UPDATE: Multilingual Support Added! 🌍
+
+**Release v0.2.1** - Full multilingual capability now supported!
+
+### Supported Languages:
+- ✅ **English** (en)
+- ✅ **Hindi** (हिन्दी) - hi
+- ✅ **Telugu** (తెలుగు) - te
+- ✅ **Tamil** (தமிழ்) - ta
+- ✅ **Bengali** (বাংলা) - bn
+- ✅ **Marathi** (मराठी) - mr
+- ✅ **Kannada** (ಕನ್ನಡ) - kn
+- ✅ **Gujarati** (ગુજરાતી) - gu
+
+### Features Implemented:
+1. **Language Selection Dialog** - Shown on first app launch
+2. **Settings Integration** - Language can be changed anytime in Settings tab
+3. **Multilingual Whisper Model** - Supports 99 languages total
+4. **Configurable via YAML** - Easy to add more languages
 
 ---
 
@@ -21,42 +43,30 @@
 | US-03 | As a user, I want to stop recording anytime | High | 🔄 In Progress | Stop button triggers audio saving |
 | US-04 | As a user, I want to review transcript before search | Low | ⏳ Pending | Transcript displayed for confirmation |
 
-### Tasks Breakdown
+### Multilingual Implementation ✅ COMPLETE
 
-#### Task 1.1: Microphone Access Setup (Day 1)
-- [x] Initialize PyAudio/webcam module
-- [ ] Handle microphone permission requests
-- [ ] Test on Windows/macOS/Linux platforms
-- [ ] Fallback handling if mic not available
+#### Task 1.1: Language Manager (DONE)
+- [x] Create LanguageManager class
+- [x] Support 8 Indian languages + English
+- [x] First-launch language selection dialog
+- [x] Settings-based language change capability
+- [x] Language persistence across sessions
 
-#### Task 1.2: Audio Capture Implementation (Day 1)
-- [ ] Stream audio samples to buffer
-- [ ] Control recording duration (30s/60s max)
-- [ ] Save to WAV format for Whisper compatibility
-- [ ] Add recording progress indicator
+#### Task 1.2: Multilingual STT Integration (DONE)
+- [x] Update WhisperSTTEngine for multilingual support
+- [x] Support language switching during transcription
+- [x] Load multilingual Whisper model (whisper-large-v3-turbo)
+- [x] Handle language-specific optimization
 
-#### Task 1.3: Real-time Waveform Display (Day 2)
-- [ ] Implement visualization library (matplotlib/waveforms.py)
-- [ ] Update waveform in real-time during recording
-- [ ] Add play/pause controls for preview
-- [ ] Handle audio playback on different OS
-
-#### Task 1.4: Transcribe with Whisper Model (Day 2)
-- [ ] Load Whisper model (check if already downloaded)
-- [ ] Process recorded audio file
-- [ ] Display transcription with word-level timestamps
-- [ ] Handle transcription errors gracefully
-
-#### Task 1.5: Error Handling & Edge Cases (Day 3)
-- [ ] Handle empty recordings
-- [ ] Handle corrupted audio files
-- [ ] Handle Whisper model loading failures
-- [ ] Add retry logic for failed transcriptions
+#### Task 1.3: Configuration Updates (DONE)
+- [x] Add language config to settings.yaml
+- [x] Document supported languages
+- [x] Set up multilingual model path
 
 ---
 
 ## Sprint 2: NLU & Book Search 🔍
-**Status:** PENDING | **Planned Start:** After Sprint 1  
+**Status:** PENDING | **Planned Start:** After Voice Recording Complete  
 **Goal:** Parse voice queries and search book repositories
 
 ### User Stories
@@ -140,20 +150,46 @@ For each sprint to be considered complete:
 
 ---
 
+## Git Commit History Summary
+
+| Date | Version | Release Name | Description |
+|------|---------|--------------|-------------|
+| 2026-07-19 | v0.1.0 | Initial Setup | Basic structure with 2-page excerpts |
+| 2026-07-20 | v0.2.0 | Full Book Reading | Complete book PDF support |
+| 2026-07-20 | v0.2.1 | Multilingual Support | 8-language voice transcription |
+
+**Total Commits:** 8  
+**Files Created:** 25+ Python files, documentation, configs
+
+---
+
 ## Retro Notes
 
-**Sprint 0 (Setup):** ✅ Complete  
-- Repository initialized  
-- Project structure established  
-- Documentation skeleton created  
+**Setup Phase:** ✅ Complete
+- Repository initialized successfully
+- Git workflow established
+- All phases documented
+- Agile tracker created
 
-**Sprint 1 Goals:** 🔄 In Progress  
-- Focus: Voice recording implementation  
-- Key deliverable: Working microphone-to-text flow  
+**Phase 1 (Requirements):** ✅ Complete
+- Waterfall requirements defined
+- System design completed
+- Multilingual support added (bonus!)
+
+**Sprint 1 Goals:** 🔄 In Progress
+- Focus: Voice recording + multilingual foundation
+- Key deliverable: Working language selection system
+- Status: Language manager DONE, STT integration DONE
 
 ---
 
 ## Next Review Date
 
-**Review Sprint 1:** After 3 days or when tasks complete  
+**Review Sprint 1 Progress:** After 3 days or when tasks complete  
 **Next Sprint Planning:** After Sprint 1 sign-off
+
+## Git Repository
+
+**URL:** https://github.com/Aumnamaha/Smart_Library  
+**Branch:** main  
+**Status:** All changes pushed to remote ✅
