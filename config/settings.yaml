@@ -1,0 +1,70 @@
+# Smart Library Configuration
+# Edit this file to customize your installation
+
+system:
+  name: "Smart Library"
+  version: "0.1.0"
+
+models:
+  # Speech-to-Text Model Configuration
+  stt_model:
+    name: "whisper-tiny"           # Options: tiny, base, small, medium
+    path: "./data/models/whisper/tiny.en.pt"
+    device: "auto"                  # auto/cpu/cuda - Auto-detect GPU
+
+  # Natural Language Understanding Model
+  nlu_model:
+    name: "phi-3-mini"             # Options: phi-3-mini, gemma-2b, mistral-7b
+    path: "./data/models/microsoft/Phi-3-mini-4k-instruct"
+    quantize: true                  # Use 4-bit quantization to save memory
+
+  model_cache_dir: "./data/models/cache"
+
+sources:
+  # Open Source Book Platforms Configuration
+  open_library:
+    enabled: true
+    api_key: null                   # Optional API key for advanced features
+
+  project_gutenberg:
+    enabled: true
+    base_url: "https://www.gutenberg.org"
+
+  archive_org:
+    enabled: true
+    base_url: "https://archive.org"
+
+  standard_ebooks:
+    enabled: false                  # Optional high-quality ebooks
+
+  disabled_sources: []             # Add source names here to disable
+
+pdf:
+  # PDF Generation Settings
+  font: "Helvetica"                # Font family for PDF output
+  font_size: 12                    # Font size in points
+  pages_per_response: 2            # Always generate exactly 2 pages
+
+  margin_top: 20                   # Margins in points
+  margin_bottom: 20
+  margin_left: 20
+  margin_right: 20
+
+  headers: true                    # Include book metadata headers
+  footers: true                    # Include source attribution
+
+logging:
+  level: "INFO"                    # Options: DEBUG, INFO, WARNING, ERROR
+  file: "./logs/app.log"           # Log file path
+  max_size_mb: 100                 # Max log file size in MB
+  backup_count: 5                  # Number of old logs to keep
+
+security:
+  api_rate_limit: 100             # Requests per minute limit
+  session_timeout_minutes: 30     # Voice session timeout
+  data_retention_days: 7          # Keep query history for days
+
+performance:
+  gpu_acceleration: true           # Enable GPU if available
+  model_load_strategy: "eager"     # eager/lazy - Load models immediately or on-demand
+  max_concurrent_queries: 1        # Max simultaneous requests

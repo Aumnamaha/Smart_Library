@@ -1,0 +1,38 @@
+# Smart Library Requirements
+# Python dependencies for the application
+
+# Web Framework & API
+fastapi==0.109.0        # Modern async web framework
+uvicorn[standard]==0.27.0  # ASGI server
+python-multipart==0.0.6   # File upload handling
+
+# Speech-to-Text Models
+whisper-tiny==1.1.5       # OpenAI Whisper (tiny model)
+torch==2.3.0              # PyTorch for model inference
+
+# Natural Language Understanding
+transformers==4.43.0      # HuggingFace models
+sentence-transformers==2.2.2  # For semantic search
+accelerate==0.31.0        # Model optimization
+
+# PDF Generation
+weasyprint==60.1          # HTML to PDF conversion
+pypdf2==3.17.1            # PDF manipulation
+reportlab==4.0.9          # Report generation
+
+# API Clients for Book Sources
+requests==2.32.3          # HTTP client
+openlibrary-client==0.6.0 # Open Library API
+beautifulsoup4==4.12.3    # HTML parsing
+
+# Configuration & Utilities
+pyyaml==6.0.1             # YAML config files
+pydantic==2.5.3           # Data validation
+python-dotenv==1.0.0      # Environment variables
+humanize==4.9.0           # Nice time formatting
+
+# Development & Testing (optional)
+pytest==8.1.1             # Testing framework
+black==24.3.0             # Code formatting
+mypy==1.9.0               # Type checking
+ruff==0.3.0               # Linter
