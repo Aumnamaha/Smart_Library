@@ -75,13 +75,13 @@ See `INSTALL.md` for detailed setup instructions.
 ## Architecture Overview
 
 ```
-┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
-│  Voice Input    │────>│  Model Runner   │────>│  Search Engine   │
-│  (Recording)    │     │  (Whisper/      │     │                  │
-└─────────────────┘     │   local LLM)    │     │  Open Library,   │
+┌─────────────────┐     ┌─────────────────┐     ┌───────────────────┐
+│  Voice Input    │────>│  Model Runner   │────>│    Search Engine  │
+│  (Recording)    │     │  (Whisper/      │     │                   │
+└─────────────────┘     │   local LLM)    │     │    Open Library,  │
                         └─────────────────┘     │  Project Gutenberg│
-                                                └────────────┬───────┘
-                                                             │
+                                                └───────────┬───────┘
+                                                            │
                                                  ┌──────────▼──────────┐
                                                  │ PDF Compiler        │
                                                  │ (Summarizer +       │
