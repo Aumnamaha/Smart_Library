@@ -1,0 +1,12 @@
+# Audio Processing Dependencies
+# =================================
+# Install these requirements for voice recording functionality:
+pip install -r requirements_audio.txt
+
+# Required for real-time microphone capture and waveform visualization
+sounddevice==0.5.0       # Real-time audio stream capture from microphone
+soundfile==0.13.1        # Read/write WAV, FLAC, MP3, OGG audio files
+numpy==1.26.4            # Numerical operations on audio data arrays
+
+# Optional (for advanced waveform visualization)
+matplotlib==3.8.0        # Waveform plotting and visualization
