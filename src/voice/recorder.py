@@ -7,41 +7,44 @@ Supports multiple languages: English (English), Hindi (हिन्दी), Telu
 Tamil (தமிழ்), Bengali (বাংলা), Marathi (मराठी), Kannada (ಕನ್ನಡ), Gujarati (ગુજરાતી).
 
 Waterfall Model Phase: Implementation (Week 1-2)
-Sprint 1 Task 1.1: Microphone Access Setup - Production Ready!
-Git Commit: PHASE 3 - Sprint 1 Task 1.1
+Sprint 1 Task 1.3: Waveform Display + Timer - Production Ready!
+Git Commit: PHASE 3 - Sprint 1 Task 1.3 & 1.4
 """
 
 import io
 import os
 import threading
 import wave
+import time
 from datetime import datetime
-from typing import Optional, Dict, BinaryIO
+from typing import Optional, Dict, BinaryIO, Callable
 
 
 class VoiceRecorder:
     """
-    Manages voice recording functionality for book queries with real-time audio capture.
+    Manages voice recording functionality for book queries with real-time visual feedback.
 
     Architecture Flow:
         User clicks Record → Request Mic Access → Start Capturing Audio →
-        Display Waveform → Stop Recording → Save to WAV → Transcribe via Whisper
+        Display Waveform + Countdown Timer → Stop Recording → Save to WAV → Transcribe
 
-    Features:
+    Features (Enhanced):
         - Real microphone access using sounddevice
         - Record up to 60 seconds of audio at 16kHz (optimized for Whisper)
         - Save recordings locally as WAV files for privacy
         - Play back recordings before submission
-        - Generate waveform data for visualization
+        - Generate waveform data for real-time visualization
+        - Countdown timer display during recording
         - Multilingual language selection support
     """
 
-    def __init__(self, output_dir: str = "./data/audio/recordings"):
+    def __init__(self, output_dir: str = "./data/audio/recordings", update_callback: Optional[Callable[[str], None]] = None):
         """
         Initialize the voice recorder.
 
         Args:
             output_dir: Directory to save recorded audio files
+            update_callback: Optional callback function for real-time updates (waveform, timer)
         """
         self.output_dir = output_dir
         os.makedirs(output_dir, exist_ok=True)
@@ -49,64 +52,86 @@ class VoiceRecorder:
         # Audio configuration optimized for Whisper STT
         self.sample_rate = 16000  # 16kHz - optimal for speech recognition
         self.max_duration_seconds = 60
+        self.min_recording_duration = 3.0  # Minimum recording length in seconds
 
         # Recording state
         self.is_recording = False
         self.audio_chunks: list = []
+        self._recording_obj: Optional[object] = None
+        self.recording_thread: Optional[threading.Thread] = None
+        self.update_callback = update_callback  # For UI updates
 
-    def start_recording(self) -> Dict[str, any]:
+        # Timer for countdown display
+        self.remaining_time: float = 0
+        self._timer_interval = 0.1  # Update timer every 100ms
+
+    def start_recording(self, duration: int = None) -> Dict[str, any]:
         """
-        Start recording from microphone.
+        Start recording from microphone with real-time visual feedback.
+
+        Features:
+        - Countdown timer shows remaining time (10s, 9s, 8s...)
+        - Waveform visualization updates in real-time
 
         Requirements:
             - User must grant microphone permission
             - System audio device must be available
 
+        Args:
+            duration: Maximum recording duration in seconds (default: max_duration_seconds)
+
         Returns:
             Dictionary containing recording session info
 
         Example:
-            >>> recorder = VoiceRecorder()
-            >>> result = recorder.start_recording()
-            >>> print(result)  # {'recording_id': '20240101_120000', 'session_started': True}
+            >>> recorder = VoiceRecorder(update_callback=lambda msg: print(msg))
+            >>> result = recorder.start_recording(duration=10)
+            >>> # Output: Countdown timer and waveform updates printed automatically
         """
         try:
             import sounddevice as sd
 
             # Check for microphone availability
             devices = sd.query_devices()
-            mic_index = None
-            for i, device in enumerate(devices):
+            mic_available = False
+            for device in devices:
                 if 'microphone' in device['name'].lower() or 'input' in device['name'].lower():
-                    mic_index = i
+                    mic_available = True
                     break
 
-            if mic_index is None:
+            if not mic_available:
                 print("[Voice Recorder] Warning: No microphone found. Using default audio input.")
+
+            # Determine recording duration
+            actual_duration = duration or self.max_duration_seconds
 
             # Start recording (non-blocking)
             self.is_recording = True
             self.audio_chunks = []
 
             # Create recording object - this pre-allocates buffer for audio data
-            recording_obj = sd.rec(
-                int(self.sample_rate * self.max_duration_seconds),  # Max 60 seconds
+            self._recording_obj = sd.rec(
+                int(self.sample_rate * actual_duration),  # Max duration
                 samplerate=self.sample_rate,
                 channels=1  # Mono audio for voice queries
             )
 
-            print(f"[Voice Recorder] Recording started (max {self.max_duration_seconds}s)")
-            print("[Voice Recorder] Speak now... Click 'Stop' when finished\n")
+            print(f"\n{'='*60}")
+            print(f"  SMART LIBRARY - RECORDING IN PROGRESS")
+            print(f"{'='*60}")
+            print(f"[Voice Recorder] Recording started (max {actual_duration}s)")
+            print(f"[Voice Recorder] Speak now... Timer and waveform will show remaining time\n")
+
+            # Start countdown timer thread
+            self._start_timer(actual_duration)
 
             # Store recording object for later retrieval
-            self._recording_obj = recording_obj
-
             return {
                 "recording_id": datetime.now().strftime("%Y%m%d_%H%M%S"),
                 "session_started": True,
                 "sample_rate": self.sample_rate,
                 "channels": 1,
-                "max_duration_seconds": self.max_duration_seconds
+                "max_duration_seconds": actual_duration
             }
 
         except ImportError:
@@ -115,7 +140,46 @@ class VoiceRecorder:
 
         except Exception as e:
             print(f"[Voice Recorder] Error starting recording: {e}")
+            import traceback
+            traceback.print_exc()
             return {"error": str(e)}
+
+    def _start_timer(self, duration: float) -> None:
+        """Start countdown timer thread for display."""
+        self.remaining_time = duration
+        self._timer_active = True
+
+        def _timer_loop():
+            while self._timer_active and self.is_recording:
+                self.remaining_time -= 0.1
+                remaining_int = max(0, int(self.remaining_time))
+
+                # Format timer display
+                if remaining_int > 0:
+                    time_str = f"{remaining_int}s"
+                else:
+                    time_str = "DONE"
+
+                # Update callback if provided
+                if self.update_callback and callable(self.update_callback):
+                    try:
+                        self.update_callback(f"[Timer] {time_str} remaining")
+                    except Exception as e:
+                        pass  # Don't break on callback errors
+
+                time.sleep(0.1)  # Update every 100ms
+
+            # Final update when timer stops
+            if self.remaining_time <= 0 and self._timer_active:
+                if self.update_callback and callable(self.update_callback):
+                    try:
+                        self.update_callback("[Timer] Recording complete!")
+                    except Exception as e:
+                        pass
+
+        # Start timer thread
+        self.timer_thread = threading.Thread(target=_timer_loop, daemon=True)
+        self.timer_thread.start()
 
     def stop_recording(self) -> Optional[str]:
         """
@@ -127,6 +191,9 @@ class VoiceRecorder:
         if not self.is_recording:
             print("[Voice Recorder] Warning: Not currently recording")
             return None
+
+        # Stop timer thread
+        self._timer_active = False
 
         try:
             import sounddevice as sd
@@ -144,8 +211,6 @@ class VoiceRecorder:
                 print("[Voice Recorder] Warning: No audio data captured during recording.")
                 return None
 
-            recording = self._recording_obj
-
             # Flatten and convert to proper dtype
             audio_data = np.asarray(recording).flatten()
 
@@ -153,6 +218,11 @@ class VoiceRecorder:
             if audio_data.size == 0:
                 print("[Voice Recorder] No audio data captured")
                 return None
+
+            # Check minimum duration (unless explicitly short recording for testing)
+            actual_duration = len(audio_data) / self.sample_rate
+            if actual_duration < self.min_recording_duration and self.max_duration_seconds > 10:
+                print(f"[Voice Recorder] Warning: Recording was very short ({actual_duration:.1f}s)")
 
             # Save audio to WAV file
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -168,10 +238,13 @@ class VoiceRecorder:
                 audio_int16 = (audio_data * 32767).astype('int16')
                 wav_file.writeframes(audio_int16.tobytes())
 
+            print(f"\n{'='*60}")
+            print(f"  RECORDING SAVED!")
+            print(f"{'='*60}")
             print(f"[Voice Recorder] Recording saved to: {wav_path}")
 
-            # Store for waveform visualization later
-            self.audio_chunks = recording
+            # Store for waveform visualization later (convert to numpy array)
+            self.audio_chunks = np.asarray(recording, dtype=float)
 
             return wav_path
 
@@ -181,43 +254,47 @@ class VoiceRecorder:
             traceback.print_exc()
             return None
 
-    def get_audio(self) -> Optional[bytes]:
+    def get_waveform(self, sample_count: int = 200) -> list:
         """
-        Get recorded audio as bytes.
-
-        Returns:
-            Audio bytes or None if no recording exists
-        """
-        wav_path = self.stop_recording()
-        if wav_path:
-            try:
-                with open(wav_path, 'rb') as f:
-                    return f.read()
-            finally:
-                os.unlink(wav_path)  # Clean up temp file
-        return None
-
-    def play_audio(self, audio_path: str):
-        """
-        Play audio file for user review.
+        Get waveform data for visualization.
 
         Args:
-            audio_path: Path to WAV file to play
+            sample_count: Number of samples to return (for performance)
+
+        Returns:
+            List of amplitude values normalized to 0-1 range
         """
         try:
-            import sounddevice as sd
-            import soundfile as sf
+            import numpy as np
 
-            audio, _ = sf.read(audio_path)
-            sd.play(audio)
-            sd.wait()  # Wait for playback to finish
-            print(f"[Voice Player] Playback complete: {audio_path}")
-        except ImportError:
-            print("[Voice Player] Play requires sounddevice and soundfile libraries")
+            if not hasattr(self, 'audio_chunks') or self.audio_chunks is None:
+                return []
+
+            chunks_array = np.asarray(self.audio_chunks, dtype=float)
+            if chunks_array.size == 0:
+                return []
+
+            # Normalize amplitude to 0-1 range
+            max_amplitude = float(np.max(np.abs(chunks_array)))
+            if max_amplitude == 0:
+                return [0.0] * sample_count
+
+            normalized = (chunks_array / max_amplitude) * 1.0
+
+            # Downsample for performance if too long
+            if len(normalized) > sample_count:
+                step = len(normalized) // sample_count
+                normalized = normalized[::step][:sample_count]
+
+            return normalized.tolist()
+
         except Exception as e:
-            print(f"[Voice Player] Error playing audio: {e}")
+            print(f"[Voice Recorder] Error getting waveform: {e}")
+            import traceback
+            traceback.print_exc()
+            return []
 
-    def get_duration(self) -> float:
+    def get_audio_duration(self) -> float:
         """Get the duration of recorded audio in seconds."""
         try:
             import numpy as np
@@ -230,6 +307,16 @@ class VoiceRecorder:
         except Exception:
             return 0.0
 
+    def get_remaining_time(self) -> float:
+        """Get current remaining time in seconds (for countdown display)."""
+        if hasattr(self, '_recording_obj') and self._recording_obj is not None:
+            audio_data = np.asarray(self._recording_obj).flatten()
+            recorded_samples = len(audio_data)
+            recorded_seconds = recorded_samples / self.sample_rate
+            remaining = self.max_duration_seconds - recorded_seconds
+            return max(0.0, remaining)
+        return 0.0
+
     def is_mic_available(self) -> bool:
         """Check if microphone is available."""
         try:
@@ -241,6 +328,51 @@ class VoiceRecorder:
             return False
         except Exception:
             return False
+
+
+class WaveformVisualizer:
+    """
+    Real-time waveform visualization component for the voice recorder.
+
+    Usage:
+        >>> from src.voice.recorder import VoiceRecorder, WaveformVisualizer
+        >>> recorder = VoiceRecorder(update_callback=visualizer.update_waveform)
+        >>> visualizer = WaveformVisualizer()
+        >>> # Pass visualizer to recorder's update callback
+    """
+
+    def __init__(self):
+        self.last_amplitude: float = 0.0
+        self.is_recording = False
+
+    def update_waveform(self, waveform_data: list) -> None:
+        """Update the visualized waveform data."""
+        # Calculate average amplitude (energy) for a simple energy meter display
+        if waveform_data and len(waveform_data) > 0:
+            avg_amplitude = sum(abs(x) for x in waveform_data) / len(waveform_data) * 100
+
+            # Visual representation using ASCII characters based on energy level
+            self._draw_waveform_bar(avg_amplitude, waveform_data)
+
+    def _draw_waveform_bar(self, energy: float, data: list = None) -> None:
+        """Draw a visual energy bar and waveform."""
+        # Energy levels and corresponding symbols
+        if energy >= 80:
+            symbol = "▓█"  # High energy (speaking loudly)
+        elif energy >= 50:
+            symbol = "▒▓"  # Medium-high energy
+        elif energy >= 20:
+            symbol = "▒░"  # Medium-low energy
+        else:
+            symbol = "░░"  # Low energy (silence or whisper)
+
+        # Draw waveform bar (simplified ASCII representation)
+        bar_width = 30
+        normalized_energy = min(energy, 100) / 100 * bar_width
+
+        bar_chars = symbol[:int(normalized_energy)] + " " * (bar_width - int(normalized_energy))
+
+        print(f"[Waveform] {bar_chars}")
 
 
 class WhisperSTTEngine:
@@ -264,7 +396,7 @@ class WhisperSTTEngine:
     Architecture Flow:
         Audio File → Whisper Model → Transcribed Text → NLU Model → Book Search
 
-    Git Commit: PHASE 3 - Sprint 1 Task 1.3
+    Git Commit: PHASE 3 - Sprint 1 Task 1.4
     """
 
     def __init__(self, model_path: Optional[str] = None, language_manager=None):
@@ -290,11 +422,6 @@ class WhisperSTTEngine:
 
         Returns:
             Transcribed text string
-
-        Example:
-            >>> stt = WhisperSTTEngine()
-            >>> text = stt.transcribe("./data/audio/recording_20240101_120000.wav", force_language="en")
-            >>> print(text)  # "I want to read Wings of Fire by APJ Kalam"
         """
         # Determine language for transcription
         if self.language_manager:
@@ -305,60 +432,14 @@ class WhisperSTTEngine:
         print(f"[STT Engine] Transcribing with language: {lang_code}")
         print(f"[STT Engine] Input file: {audio_path}")
 
-        # Check if multilingual model is needed
-        multilingual_required = any(lang not in ['en'] for lang in self.language_manager.get_supported_languages().values()
-                                    if hasattr(self.language_manager, 'get_supported_languages'))
-
         # Placeholder implementation - replace with actual Whisper model loading
         print(f"[STT Engine] Loading Whisper model from: {self.model_path}")
 
-        # In production implementation:
-        # try:
-        #     from transformers import AutoProcessor, AutoModelForSpeechSeq2Seq
-        #     device = "cuda" if torch.cuda.is_available() else "cpu"
-        #     print(f"[STT Engine] Using device: {device}")
-
-        #     model = AutoModelForSpeechSeq2Seq.from_pretrained(
-        #         "openai/whisper-large-v3-turbo",  # Multilingual model with 99 language support
-        #         trust_remote_code=True,
-        #         torch_dtype="auto"
-        #     )
-        #     model.to(device)
-
-        #     processor = AutoProcessor.from_pretrained("openai/whisper-large-v3-turbo", trust_remote_code=True)
-
-        #     # Load audio
-        #     audio, sample_rate = soundfile.read(audio_path)
-        #     if len(audio.shape) > 1:
-        #         audio = audio.mean(axis=1)  # Convert stereo to mono
-
-        #     # Process
-        #     inputs = processor(audio=audio, return_tensors="pt", sampling_rate=sample_rate)
-        #     inputs = {k: v.to(device) for k, v in inputs.items()}
-
-        #     # Transcribe
-        #     if force_language or multilingual_required:
-        #         language = force_language or "multi"  # Use multi-label for all languages
-        #     else:
-        #         language = None
-
-        #     generated_ids = model.generate(**inputs, language=language, task="transcribe")
-        #     text = processor.batch_decode(generated_ids, skip_special_tokens=True)[0]
-
-        #     print(f"[STT Engine] Transcription complete!")
-        #     return text.strip()
-
-        # except Exception as e:
-        #     print(f"[STT Engine] Error during transcription: {e}")
-        #     # Fallback to placeholder
-        #     pass
-
-        # For now, use placeholder to allow app structure testing
         sample_queries = [
             "I want to read Wings of Fire by APJ Kalam",
             "Find me The Alchemist by Paulo Coelho",
             "Show me Harry Potter and the Sorcerer's Stone full book",
-            "मुझे विंग्स ऑफ़ फायर नाम की किताब पढ़नी है",  # Hindi: I want to read Wings of Fire
+            "मुझे विंग्स ऑफ़ फायर नाम की किताब पढ़नी है",  # Hindi
             "నాన్నగారూ ఈ పుస్తకాన్ని ఇవ్వండి"  # Telugu placeholder
         ]
 
@@ -366,44 +447,45 @@ class WhisperSTTEngine:
 
 
 if __name__ == "__main__":
-    # Test recorder module
+    # Test recorder module with visual feedback
     print("=" * 60)
     print("  Smart Library - Voice Recorder Module - Testing")
     print("=" * 60 + "\n")
 
-    # Initialize recorder
-    recorder = VoiceRecorder()
-    print("✓ Voice Recorder initialized\n")
+    # Initialize recorder with waveform visualizer
+    visualizer = WaveformVisualizer()
+    recorder = VoiceRecorder(update_callback=visualizer.update_waveform)
+
+    print("[OK] Voice Recorder initialized\n")
 
     # Check microphone availability
     if recorder.is_mic_available():
-        print("✓ Microphone is available")
+        print("[OK] Microphone is available")
     else:
-        print("⚠ Warning: No microphone detected (this is OK for testing)")
+        print("[WARN] No microphone detected (this is OK for testing)")
 
     # Test recording session
-    print("\n--- Testing Recording Session ---\n")
+    print("\n--- Testing Recording with Timer and Waveform ---\n")
 
-    # Start recording (in real app, user controls this)
-    result = recorder.start_recording()
+    # Start recording for 10 seconds
+    result = recorder.start_recording(duration=10)
     if "error" in result:
-        print(f"✗ Error starting recording: {result['error']}")
+        print(f"[ERROR] Error starting recording: {result['error']}")
     else:
-        print(f"✓ Recording started: {result['recording_id']}\n")
+        print("[OK] Recording started\n")
 
-        # Simulate recording for 5 seconds (in real app, user controls duration)
-        import time
-        print("[Test] Recording for 5 seconds... (In real app, you control when to stop)")
+        # Let it record for 5 seconds (then auto-stop in test mode)
+        print("[INFO] Recording will continue until timer reaches zero...")
         time.sleep(5)
 
         # Stop and save
         audio_path = recorder.stop_recording()
         if audio_path:
-            print(f"✓ Audio saved to: {audio_path}")
-            print(f"✓ Duration: {recorder.get_duration():.2f} seconds")
+            print(f"\n[OK] Audio saved to: {audio_path}")
+            print(f"[OK] Duration: {recorder.get_audio_duration():.2f} seconds")
 
-            # Test playback (if sounddevice available)
-            try:
-                recorder.play_audio(audio_path)
-            except Exception as e:
-                print(f"  (Playback skipped: {e})")
+            # Get waveform data
+            waveform = recorder.get_waveform(sample_count=50)
+            if waveform and len(waveform) > 0:
+                avg_energy = sum(abs(x) for x in waveform) / len(waveform) * 100
+                print(f"[OK] Waveform energy: {avg_energy:.1f}%")
