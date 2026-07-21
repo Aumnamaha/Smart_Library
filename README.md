@@ -2,12 +2,15 @@
 
 A voice-powered intelligent library system that uses local AI models to understand book queries and provide **complete book downloads**.
 
-## Features
+## Features ✅
 
-- **Voice-to-Text Transcription**: Record and transcribe user voice queries locally
+- **🎙️ Voice-to-Text Transcription**: Record and transcribe user voice queries locally
+- **⏱️ Countdown Timer**: Real-time timer shows remaining recording time (9s, 8s, 7s...)
+- **📊 Waveform Visualization**: Real-time audio energy bar display during recording
 - **AI Book Search**: Find books based on natural language queries
 - **Smart Retrieval**: Locate full books from open source platforms
-- **Full Book PDF Generation**: Download and read complete books, not just excerpts
+- **Full Book PDF Generation**: Download and read complete books (not 2-page excerpts)
+- **🌍 Multilingual Support**: English, Hindi (हिन्दी), Telugu (తెలుగు), Tamil (தமிழ்), Bengali, Marathi, Kannada, Gujarati
 - **Local AI Models**: All processing happens offline with local LLMs
 
 ---
