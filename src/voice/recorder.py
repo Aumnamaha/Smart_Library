@@ -88,8 +88,8 @@ class VoiceRecorder:
             self.is_recording = True
             self.audio_chunks = []
 
-            # Create recording object
-            recording = sd.rec(
+            # Create recording object - this pre-allocates buffer for audio data
+            recording_obj = sd.rec(
                 int(self.sample_rate * self.max_duration_seconds),  # Max 60 seconds
                 samplerate=self.sample_rate,
                 channels=1  # Mono audio for voice queries
@@ -97,6 +97,9 @@ class VoiceRecorder:
 
             print(f"[Voice Recorder] Recording started (max {self.max_duration_seconds}s)")
             print("[Voice Recorder] Speak now... Click 'Stop' when finished\n")
+
+            # Store recording object for later retrieval
+            self._recording_obj = recording_obj
 
             return {
                 "recording_id": datetime.now().strftime("%Y%m%d_%H%M%S"),
@@ -127,40 +130,55 @@ class VoiceRecorder:
 
         try:
             import sounddevice as sd
+            import numpy as np
 
-            # Stop the recording
+            # Stop the recording and get the captured data
             sd.stop()
-            self.is_recording = False
+
+            # Get audio data from recording object if available, otherwise use chunks
+            if hasattr(self, '_recording_obj') and self._recording_obj is not None:
+                recording = self._recording_obj
+            elif len(self.audio_chunks) > 0:
+                recording = self.audio_chunks
+            else:
+                print("[Voice Recorder] Warning: No audio data captured during recording.")
+                return None
+
+            recording = self._recording_obj
+
+            # Flatten and convert to proper dtype
+            audio_data = np.asarray(recording).flatten()
+
+            # Ensure we have valid data
+            if audio_data.size == 0:
+                print("[Voice Recorder] No audio data captured")
+                return None
 
             # Save audio to WAV file
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             wav_path = os.path.join(self.output_dir, f"recording_{timestamp}.wav")
 
-            # Convert numpy array to bytes
-            if len(self.audio_chunks) > 0:
-                # Flatten and ensure proper dtype
-                audio_data = self.audio_chunks.flatten().astype('int16')
+            # Write WAV file with proper format
+            with wave.open(wav_path, 'wb') as wav_file:
+                wav_file.setnchannels(1)  # Mono
+                wav_file.setsampwidth(2)  # 16-bit samples
+                wav_file.setframerate(self.sample_rate)  # 16kHz
 
-                # Write WAV file
-                with wave.open(wav_path, 'wb') as wav_file:
-                    wav_file.setnchannels(1)  # Mono
-                    wav_file.setsampwidth(2)  # 16-bit samples
-                    wav_file.setframerate(self.sample_rate)  # 16kHz
+                # Convert float audio data to int16 and write
+                audio_int16 = (audio_data * 32767).astype('int16')
+                wav_file.writeframes(audio_int16.tobytes())
 
-                    # Write audio frames
-                    for i in range(0, len(audio_data), self.sample_rate):
-                        chunk = audio_data[i:i + self.sample_rate]
-                        frames = (chunk * 32767).astype('int16')  # Scale to int16 range
-                        wav_file.writeframes(frames.tobytes())
+            print(f"[Voice Recorder] Recording saved to: {wav_path}")
 
-                print(f"[Voice Recorder] Recording saved to: {wav_path}")
-                return wav_path
-            else:
-                print("[Voice Recorder] No audio data captured")
-                return None
+            # Store for waveform visualization later
+            self.audio_chunks = recording
+
+            return wav_path
 
         except Exception as e:
             print(f"[Voice Recorder] Error saving recording: {e}")
+            import traceback
+            traceback.print_exc()
             return None
 
     def get_audio(self) -> Optional[bytes]:
@@ -201,9 +219,16 @@ class VoiceRecorder:
 
     def get_duration(self) -> float:
         """Get the duration of recorded audio in seconds."""
-        if not self.audio_chunks:
+        try:
+            import numpy as np
+            if not hasattr(self, 'audio_chunks') or self.audio_chunks is None:
+                return 0.0
+            chunks_array = np.asarray(self.audio_chunks)
+            if chunks_array.size == 0:
+                return 0.0
+            return int(chunks_array.size) / self.sample_rate
+        except Exception:
             return 0.0
-        return len(self.audio_chunks.flatten()) / self.sample_rate
 
     def is_mic_available(self) -> bool:
         """Check if microphone is available."""
