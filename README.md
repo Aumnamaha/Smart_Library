@@ -1,88 +1,41 @@
-# Smart Library App 📚
+# 📚 Smart Library — Voice-Powered Book Discovery
 
-A voice-powered intelligent library system that uses local AI models to understand book queries and provide **complete book downloads**.
+> **AI-powered library system using local voice transcription and LLM-based search to find and compile complete book PDFs from open-source platforms.**
 
-## Features ✅
-
-- **🎙️ Voice-to-Text Transcription**: Record and transcribe user voice queries locally
-- **⏱️ Countdown Timer**: Real-time timer shows remaining recording time (9s, 8s, 7s...)
-- **📊 Waveform Visualization**: Real-time audio energy bar display during recording
-- **AI Book Search**: Find books based on natural language queries
-- **Smart Retrieval**: Locate full books from open source platforms
-- **Full Book PDF Generation**: Download and read complete books (not 2-page excerpts)
-- **🌍 Multilingual Support**: English, Hindi (हिन्दी), Telugu (తెలుగు), Tamil (தமிழ்), Bengali, Marathi, Kannada, Gujarati
-- **Local AI Models**: All processing happens offline with local LLMs
+[![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
 
 ---
 
-## Table of Contents
+## 📋 Executive Summary
 
-- [Waterfall Model Phases](#waterfall-model-phases)
-- [Quick Start](#quick-start)
-- [Architecture Overview](#architecture-overview)
-- [Technology Stack](#technology-stack)
+**Smart Library** is a voice-enabled intelligent library system that understands natural language book queries through local AI models and provides complete book downloads from open-source platforms. Built following the Waterfall SDLC model, it supports **8 Indian languages** plus English for inclusive access.
 
----
-
-## Waterfall Model Phases
-
-This project follows the **Waterfall Software Development Model**:
-
-```
-Requirements → Design → Implementation → Testing → Deployment → Maintenance
-           ↓             ↓              ↓          ↓            ↓
-         SRS Doc    System Design   Code Base  Test Reports  Live App
-                           Database UI     Unit Tests    Docs     Training
-```
-
-### Phase 1: Requirements Analysis ✅ (COMPLETED)
-
-**Deliverables:** Software Requirements Specification (SRS), User Stories, Use Cases
-
-**Key Requirements:**
-- Voice recording and transcription functionality
-- Natural language query processing
-- Book search across open source platforms
-- PDF content extraction and compilation
-- Local AI model integration
-- Offline-capable architecture
-
-### Phase 2: System Design ✅ (COMPLETED)
-
-**Deliverables:** System Architecture, Database Schema, API Specifications, UI Mockups
-
-### Phase 3: Implementation 🔄
-
-**Deliverables:** Source Code, Build Artifacts
-
-### Phase 4: Testing ⏳
-
-**Deliverables:** Test Plans, Test Cases, Bug Reports
-
-### Phase 5: Deployment ⏳
-
-**Deliverables:** Production Build, User Documentation
-
-### Phase 6: Maintenance ⏳
-
-**Deliverables:** Update Logs, Support Tickets
+> ⚠️ **Status:** Project in active development — Implementation phase (Phase 3 of 6). Core architecture documented; full setup instructions pending completion of source code modules.
 
 ---
 
-## Quick Start
+## ✨ Key Features
 
-See `INSTALL.md` for detailed setup instructions.
+| Feature | Description |
+|---|---|
+| 🎙️ **Voice-to-Text** | Local speech transcription using Whisper or equivalent STT model |
+| 🔍 **AI Book Search** | Natural language queries to find books across open-source platforms |
+| 📥 **Full PDF Generation** | Complete book downloads (not excerpts) from Open Library, Project Gutenberg, Internet Archive |
+| 🌍 **Multilingual Support** | English, Hindi, Telugu, Tamil, Bengali, Marathi, Kannada, Gujarati |
+| 🤖 **Local AI Models** | All processing runs offline — no external API dependencies |
 
 ---
 
-## Architecture Overview
+## 🏗️ Architecture
 
 ```
 ┌─────────────────┐     ┌─────────────────┐     ┌───────────────────┐
 │  Voice Input    │────>│  Model Runner   │────>│    Search Engine  │
 │  (Recording)    │     │  (Whisper/      │     │                   │
-└─────────────────┘     │   local LLM)    │     │    Open Library,  │
-                        └─────────────────┘     │  Project Gutenberg│
+│                 │     │   local LLM)    │     │ Open Library,     │
+└─────────────────┘     └─────────────────┘     │ Project Gutenberg │
                                                 └───────────┬───────┘
                                                             │
                                                  ┌──────────▼──────────┐
@@ -99,51 +52,86 @@ See `INSTALL.md` for detailed setup instructions.
 
 ---
 
-## Technology Stack
+## 📊 Development Status — Waterfall Model
 
-### AI/ML Models (Local)
-- **Whisper** (or equivalent local STT): Voice-to-text transcription
-- **LLM 1** (e.g., Llama-3-8B, Mistral): Natural language understanding & query parsing
-- **LLM 2** (e.g., smaller model like Phi-3 or Gemma): Book search & retrieval
-
-### Backend Framework
-- **Python** with FastAPI/Flask for REST API
-- Or **Node.js** with Express if preferred
-
-### PDF Generation
-- **WeasyPrint** or **PyPDF2** for Python
-- Or **pdfkit** / **Puppeteer** for Node.js
-
-### Open Source Book Sources
-- [Open Library](https://openlibrary.org/)
-- [Project Gutenberg](https://www.gutenberg.org/)
-- [Internet Archive](https://archive.org/)
-- [Z-Library Alternative](https://libgen.is)
-- [Standard Ebooks](https://standardebooks.org/)
+| Phase | Status | Deliverables |
+|---|---|---|
+| **1. Requirements** | ✅ Complete | SRS, User Stories, Use Cases |
+| **2. System Design** | ✅ Complete | Architecture, DB Schema, API Specs |
+| **3. Implementation** | 🔄 In Progress | Source code modules (voice/, models/, search/, pdf_compiler/) |
+| **4. Testing** | ⏳ Pending | Test plans, test cases |
+| **5. Deployment** | ⏳ Pending | Production build |
+| **6. Maintenance** | ⏳ Pending | Update logs |
 
 ---
 
-## Project Structure
+## 🚀 Quick Start (Preview)
+
+### Prerequisites
+
+- **Python 3.10+** installed on your system
+- **Node.js 18+** (for frontend components, if applicable)
+
+### Installation (Pending Implementation Completion)
+
+```powershell
+# Step 1: Clone the repository
+git clone https://github.com/Aumnamaha/Smart_Library.git
+cd Smart_Library
+
+# Step 2: Activate virtual environment
+& "C:\Users\Aum Namaha\Documents\finalenv\Scripts\Activate.ps1"
+
+# Step 3: Install dependencies (once requirements.txt is finalized)
+# pip install -r requirements.txt
+
+# Step 4: Launch the application
+# python app.py   # or: streamlit run app.py
+```
+
+Detailed setup instructions are available in [`INSTALL.md`](<INSTALL.md>) once implementation is complete.
+
+---
+
+## 📁 Project Structure (Planned)
 
 ```
 Smart_Library/
 ├── README.md                 # This file
-├── INSTALL.md                # Setup instructions
+├── INSTALL.md                # Setup instructions (pending)
 ├── PLANNING.md               # Waterfall planning documents
-├── src/                      # Source code
-│   ├── voice/               # Voice recording & transcription
-│   ├── models/              # AI model management
-│   ├── search/              # Book search functionality
-│   └── pdf_compiler/        # PDF generation logic
+├── requirements.txt          # TBD — to be finalized with implementation
+├── src/                      # Source code modules
+│   ├── voice/                # Voice recording & transcription
+│   ├── models/               # AI model management (Whisper, LLM)
+│   ├── search/               # Book search across open-source platforms
+│   └── pdf_compiler/         # PDF generation logic
 ├── docs/                     # Documentation
 ├── tests/                    # Test files
 ├── config/                   # Configuration files
-├── data/                     # Model downloads, cache
-└── deploy/                   # Deployment scripts
+└── data/                     # Model downloads & cache
 ```
 
 ---
 
-## License
+## 🛠️ Technology Stack
 
-This project uses only open source libraries and platforms.
+| Component | Technology |
+|---|---|
+| **STT** | Whisper (local) or equivalent local model |
+| **LLM** | Llama-3-8B / Mistral / Phi-3 (local inference) |
+| **Backend** | Python with FastAPI/Flask |
+| **PDF Generation** | WeasyPrint / PyPDF2 / pdfkit |
+| **Book Sources** | Open Library, Project Gutenberg, Internet Archive |
+
+---
+
+## 👤 Author
+
+**Maintained by [Thirunagari Aum Namaha](https://github.com/Aumnamaha)** • [LinkedIn](https://www.linkedin.com/in/aumnamaha-thirunagari-9214782bb/)
+
+---
+
+## 📜 License
+
+This project uses only open-source libraries and platforms. Licensed under MIT.
